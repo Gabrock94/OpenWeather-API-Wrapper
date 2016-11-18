@@ -8,11 +8,12 @@ var OpenWeather = (function(){
 	if (!$)
 		throw "JQuery is required for OpenWeather API";
 
-	var 	appId = '', 		// API key consumed by API for validation
-		zip = '',		// Get weather for this zip code
+	var appId = '', 		// API key consumed by API for validation
+		zip = '',			// Get weather for this zip code
 		ready = false,		// Validatea that the API has returned data
 		rawResponse = {},	// Contains raw response from API
-		iconEl = '';		// ID for element containing weather icon
+		iconEl = '',		// ID for element containing weather icon
+		infoEl = '';		// ID for element containing weather info
 	
 	self.zip = function(newZip){
 		// Sets new zip code if provided and fetch new data, 
@@ -53,6 +54,17 @@ var OpenWeather = (function(){
 		}
 	}
 	
+	self.infoEl = function(newInfoEl){
+		// Sets new id for element containing the weather icon if provided and render ico, 
+		// otherwise returns current id for element containing the weather icon
+		if (typeof newInfoEl === 'undefined'){
+			return infoEl;
+		} else {
+			infoEl = newInfoEl;
+			setInfo();
+			return infoEl;	
+		}
+	}
 	
 	self.weather = function(){
 		// Unpacks raw response data and formats relevant data
@@ -68,7 +80,7 @@ var OpenWeather = (function(){
 		};
 		wthr.currentTemp = function(){
 			// current temperature in degrees F
-			return kelvinToF(rawResponse.main.temp).toString() + ' °F';
+			return kelvinToF(rawResponse.main.temp).toString() + ' Â°F';
 		};
 		wthr.shortDesc = function(){
 			// short description of current weather
@@ -98,16 +110,27 @@ var OpenWeather = (function(){
 		return wthr;
 	};
 	
+	
 	var setImageIcon = function(){
 		// attaches the weather icon to the element provided
 		$('#' + iconEl).attr('src','http://openweathermap.org/img/w/' + self.weather().icon() + '.png')
+	}
+	
+	var setInfo = function(){
+		// attaches the weather info to the element provided
+		var weatherInfo = '';
+		
+		weatherInfo += self.weather().currentTemp() + ' ';
+		weatherInfo += self.weather().longDesc() + ' ';
+		weatherInfo += ', Wind: ' + self.weather().wind() + ' ';
+		
+		$('#' + infoEl).empty().append(weatherInfo);
 	}
 	
 	var apiUrl = function(){	
 		// assembled API call URL
 		return 'http://api.openweathermap.org/data/2.5/weather?zip=' + zip + ',us&appid=' + appId;
 	};
-	
 	
 	var retrieveWeather = function(){
 		// call to API
@@ -119,8 +142,12 @@ var OpenWeather = (function(){
 			
 				// set raw response data
 				rawResponse = result;
+				
 				// set icon image
 				setImageIcon();
+				
+				// set info
+				setInfo();
 				
 				return true;
 			}
@@ -130,15 +157,22 @@ var OpenWeather = (function(){
 	self.init = function(initData){
 		// set intializing data
 		if(typeof initData.zip == 'undefined' || typeof initData.appId == 'undefined') {
+			// require zip and appID
 			throw 'must provide zip and app id';
 			return self;
 		} else {
+		
 			if (typeof initData.icon === 'undefined')
-				initData.icon = '';
+				initData.icon = ''; // permit null icon ID
+				
+			if (typeof initData.info === 'undefined')
+				initData.info = ''; // permit null info ID
 				
 			zip = initData.zip;
 			appId = initData.appId;
 			iconEl = initData.icon;
+			infoEl = initData.info;
+			
 			return self;
 		}
 	};
@@ -147,9 +181,6 @@ var OpenWeather = (function(){
 		// fetches weather
 		return retrieveWeather();
 	}
-	
-	
-	// Utilities
 	
 	function kelvinToF(K){
 		return (K*9/5 - 459.67).toFixed(1);
