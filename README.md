@@ -7,9 +7,9 @@ Get an OpenWeather API key <a href="http://openweathermap.org/appid">here</a>.
 Intialize the OpenWeather API Wrapper with your zip code, API Key and the ID of the img element to which you wish to render the <a href='https://openweathermap.org/weather-conditions'>OpenWeather icon</a>. Chain with the fetch() method to make a call to the OpenWeather API. 
 
 	OpenWeather.init({
-		zip: '90210',				   // zip, required
+		zip: '90210',                              // zip, required
 		appId: '5435495k4h5g4jhglk3nlk345534bkk3', // API Key, required
-		icon: 'weather-icon',  			   // icon ID, optional
+		icon: 'weather-icon',                      // icon ID, optional
 		info: 'weather-info'                       // info ID, optional
 	}).fetch();
 	
